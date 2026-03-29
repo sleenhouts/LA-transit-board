@@ -1,0 +1,5 @@
+requests
+orjson
+beautifulsoup4
+astral
+backports.zoneinfo
