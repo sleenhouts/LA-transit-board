@@ -32,6 +32,7 @@ SWIFTLY_API_KEY = 'your_api_key'
 # Swiftly API endpoint: https://api.goswift.ly/real-time/lametro/gtfs-rt-trip-updates?format=json
 #
 # Recommended to populate this with the helper at:
+# https://github.com/sleenhouts/LA-transit-board/blob/main/stop_helper.html
 #
 # For manual entry:
 # Query: https://api.goswift.ly/info/lametro/routes?verbose=True
@@ -62,6 +63,7 @@ my_stops_lametro = {
 # Swiftly API endpoint: https://api.goswift.ly/real-time/lametro-rail/gtfs-rt-trip-updates?format=json
 #
 # Recommended to populate this with the helper at:
+# https://github.com/sleenhouts/LA-transit-board/blob/main/stop_helper.html
 #
 # For manual entry:
 # Query: https://api.goswift.ly/info/lametro-rail/routes?verbose=True
