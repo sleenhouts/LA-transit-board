@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Transit Board Stop Helper</title>
+<style>
+  :root {
+    --orange: #E75000;
+    --blue: #0072BC;
+    --yellow: #FDB913;
+    --green: #58A738;
+    --pink: #E56DB1;
+    --purple: #A05DA5;
+    --red: #EB131B;
+    --bg: #0a0a0a;
+    --surface: #141414;
+    --border: #2a2a2a;
+    --text: #e8e8e8;
+    --muted: #666;
+    --font: 'Courier New', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    min-height: 100vh;
+    padding: 2rem;
+  }
+
+  header {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  h1 {
+    font-size: 1.1rem;
+    font-weight: normal;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text);
+  }
+
+  h1 span {
+    color: var(--orange);
+  }
+
+  .agency-toggle {
+    display: flex;
+    gap: 0;
+    margin-top: 1.5rem;
+    border: 1px solid var(--border);
+    width: fit-content;
+  }
+
+  .agency-toggle button {
+    padding: 0.5rem 1.5rem;
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-family: var(--font);
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .agency-toggle button.active {
+    background: var(--orange);
+    color: #000;
+  }
+
+  .agency-toggle button:not(.active):hover {
+    color: var(--text);
+  }
+
+  .api-row {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-end;
+    margin-bottom: 2rem;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .field label {
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .field input, .field select {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 0.85rem;
+    padding: 0.5rem 0.75rem;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .field input:focus, .field select:focus {
+    border-color: var(--orange);
+  }
+
+  .field input[type="number"] { width: 100px; }
+  .field select { min-width: 200px; cursor: pointer; }
+  .field input[type="text"] { width: 320px; }
+
+  button.action {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.5rem 1.25rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    height: fit-content;
+    align-self: flex-end;
+  }
+
+  button.action:hover {
+    border-color: var(--orange);
+    color: var(--orange);
+  }
+
+  button.action.primary {
+    border-color: var(--orange);
+    color: var(--orange);
+  }
+
+  button.action.primary:hover {
+    background: var(--orange);
+    color: #000;
+  }
+
+  .selectors {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding: 1.5rem;
+    border: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  .direction-group {
+    display: flex;
+    gap: 0;
+    border: 1px solid var(--border);
+    width: fit-content;
+  }
+
+  .direction-group button {
+    width: 36px;
+    height: 36px;
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-family: var(--font);
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .direction-group button.active {
+    background: var(--orange);
+    color: #000;
+  }
+
+  .direction-group button:not(.active):hover {
+    color: var(--text);
+  }
+
+  .add-row {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-end;
+    margin-bottom: 2rem;
+  }
+
+  .entries {
+    margin-bottom: 2rem;
+  }
+
+  .entry {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.6rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.8rem;
+  }
+
+  .entry:first-child {
+    border-top: 1px solid var(--border);
+  }
+
+  .entry .stop-name {
+    flex: 1;
+    color: var(--muted);
+    font-size: 0.75rem;
+  }
+
+  .entry .route-badge {
+    padding: 0.2rem 0.5rem;
+    font-size: 0.7rem;
+    font-weight: bold;
+    background: var(--orange);
+    color: #000;
+    min-width: 40px;
+    text-align: center;
+  }
+
+  .entry .route-badge.rail {
+    background: #888;
+    color: #000;
+  }
+
+  .entry .dir-badge {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border);
+    font-size: 0.7rem;
+    color: var(--orange);
+  }
+
+  .entry .mins {
+    color: var(--muted);
+    font-size: 0.75rem;
+    min-width: 60px;
+  }
+
+  .entry button.remove {
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0 0.25rem;
+    line-height: 1;
+    transition: color 0.15s;
+  }
+
+  .entry button.remove:hover { color: var(--red); }
+
+  .output-section {
+    margin-top: 2rem;
+  }
+
+  .output-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+  }
+
+  .output-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  pre {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 1.25rem;
+    font-family: var(--font);
+    font-size: 0.8rem;
+    line-height: 1.6;
+    overflow-x: auto;
+    white-space: pre;
+    color: var(--text);
+  }
+
+  .status {
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-bottom: 1rem;
+    min-height: 1.2em;
+  }
+
+  .status.error { color: var(--red); }
+  .status.ok { color: var(--green); }
+
+  .warning {
+    font-size: 0.75rem;
+    color: var(--yellow);
+    margin-bottom: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--yellow);
+    display: none;
+  }
+
+  select option { background: #1a1a1a; }
+
+  .home-section {
+    border: 1px solid var(--border);
+    padding: 1.25rem;
+    margin-bottom: 2rem;
+    background: var(--surface);
+  }
+
+  .home-section .section-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1rem;
+  }
+
+  .home-row {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-end;
+    flex-wrap: wrap;
+  }
+
+  .coords-display {
+    font-size: 0.75rem;
+    color: var(--muted);
+    align-self: flex-end;
+    padding-bottom: 0.5rem;
+    min-width: 200px;
+  }
+
+  .coords-display.set { color: var(--green); }
+
+
+    padding: 2rem;
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.8rem;
+    border: 1px dashed var(--border);
+    margin-bottom: 2rem;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Transit Board <span>//</span> Stop Config Helper</h1>
+  <div class="agency-toggle">
+    <button class="active" onclick="setAgency('bus')">LA Metro Bus</button>
+    <button onclick="setAgency('rail')">LA Metro Rail</button>
+  </div>
+</header>
+
+<div class="api-row">
+  <div class="field">
+    <label>Swiftly API Key</label>
+    <input type="text" id="apiKey" placeholder="your_api_key_here">
+  </div>
+  <button class="action primary" onclick="loadRoutes()">Load Routes</button>
+</div>
+
+<div class="home-section">
+  <div class="section-label">Home Location <span style="color:var(--muted);font-size:0.65rem;text-transform:none;letter-spacing:0">(optional — enables OpenStreetMap walk time calculation)</span></div>
+  <div class="home-row">
+    <div class="field">
+      <label>Address</label>
+      <input type="text" id="homeAddress" placeholder="123 Main St, Los Angeles, CA" style="width:360px">
+    </div>
+    <button class="action" onclick="geocodeHome()">Look Up</button>
+    <div class="coords-display" id="coordsDisplay">No location set.</div>
+  </div>
+</div>
+
+<div class="status" id="status"></div>
+
+<div class="selectors" id="selectors">
+  <div class="field">
+    <label>Route</label>
+    <select id="routeSelect" onchange="onRouteChange()" disabled>
+      <option value="">— load routes first —</option>
+    </select>
+  </div>
+  <div class="field">
+    <label>Direction</label>
+    <select id="directionSelect" onchange="onDirectionChange()" disabled>
+      <option value="">— select route first —</option>
+    </select>
+  </div>
+  <div class="field">
+    <label>Stop</label>
+    <select id="stopSelect" disabled>
+      <option value="">— select direction first —</option>
+    </select>
+  </div>
+  <div class="field">
+    <label>Cardinal Direction</label>
+    <div class="direction-group" id="cardinalGroup">
+      <button onclick="setCardinal('N')">N</button>
+      <button onclick="setCardinal('S')">S</button>
+      <button onclick="setCardinal('E')">E</button>
+      <button onclick="setCardinal('W')">W</button>
+    </div>
+  </div>
+  <div class="field">
+    <label>Minutes from Home</label>
+    <input type="number" id="minsInput" min="0" value="" placeholder="0" onkeydown="return event.key !== '-' && event.key !== '.'">
+  </div>
+</div>
+
+<div class="add-row">
+  <button class="action primary" onclick="addEntry()">+ Add Stop</button>
+  <button class="action" onclick="clearAll()">Clear All</button>
+</div>
+
+<div id="entriesList" class="empty-state">No stops added yet.</div>
+
+<div class="output-section">
+  <div id="directionWarnings"></div>
+  <div class="output-header">
+    <span class="output-label">Config Output</span>
+    <button class="action" onclick="copyOutput()">Copy</button>
+  </div>
+  <pre id="output"># Add stops above to generate config output.</pre>
+</div>
+
+<script>
+  let agency = 'bus';
+  let routesData = [];
+  let entries = [];
+  let cardinal = null;
+  let homeCoords = null;
+
+  async function geocodeHome() {
+    const address = document.getElementById('homeAddress').value.trim();
+    if (!address) { setStatus('Enter an address to look up.', 'error'); return; }
+    setStatus('Looking up address...');
+    try {
+      const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`;
+      const r = await fetch(url, { headers: { 'Accept-Language': 'en' } });
+      const data = await r.json();
+      if (!data.length) { setStatus('Address not found. Try a more specific address.', 'error'); return; }
+      homeCoords = { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) };
+      const disp = document.getElementById('coordsDisplay');
+      disp.textContent = `${homeCoords.lat.toFixed(5)}, ${homeCoords.lon.toFixed(5)}`;
+      disp.className = 'coords-display set';
+      setStatus('Home location set.', 'ok');
+      setTimeout(() => setStatus(''), 2000);
+    } catch(e) {
+      setStatus('Geocoding error: ' + e.message, 'error');
+    }
+  }
+
+  async function getWalkMinutes(stopLat, stopLon) {
+    if (!homeCoords) return null;
+    try {
+      const url = `https://routing.openstreetmap.de/routed-foot/route/v1/foot/${homeCoords.lon},${homeCoords.lat};${stopLon},${stopLat}?overview=false`;
+      const r = await fetch(url);
+      const data = await r.json();
+      if (data.code !== 'Ok') return null;
+      return Math.round(data.routes[0].duration / 60);
+    } catch(e) {
+      return null;
+    }
+  }
+
+  function setAgency(a) {
+    agency = a;
+    document.querySelectorAll('.agency-toggle button').forEach((b, i) => {
+      b.classList.toggle('active', (i === 0 && a === 'bus') || (i === 1 && a === 'rail'));
+    });
+    resetSelectors();
+    routesData = [];
+    setStatus('');
+  }
+
+  function setStatus(msg, type = '') {
+    const el = document.getElementById('status');
+    el.textContent = msg;
+    el.className = 'status' + (type ? ' ' + type : '');
+  }
+
+  function resetSelectors() {
+    const r = document.getElementById('routeSelect');
+    const d = document.getElementById('directionSelect');
+    const s = document.getElementById('stopSelect');
+    r.innerHTML = '<option value="">— load routes first —</option>';
+    d.innerHTML = '<option value="">— select route first —</option>';
+    s.innerHTML = '<option value="">— select direction first —</option>';
+    r.disabled = true;
+    d.disabled = true;
+    s.disabled = true;
+    cardinal = null;
+    document.querySelectorAll('.direction-group button').forEach(b => b.classList.remove('active'));
+  }
+
+  async function loadRoutes() {
+    const key = document.getElementById('apiKey').value.trim();
+    if (!key) { setStatus('Enter your API key first.', 'error'); return; }
+
+    const slug = agency === 'bus' ? 'lametro' : 'lametro-rail';
+    const url = `https://api.goswift.ly/info/${slug}/routes?verbose=True`;
+
+    setStatus('Loading routes...');
+    try {
+      const r = await fetch(url, { headers: { 'Authorization': key } });
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      const data = await r.json();
+      routesData = data.data.routes;
+      populateRoutes();
+      setStatus(`Loaded ${routesData.length} routes.`, 'ok');
+    } catch(e) {
+      setStatus('Error loading routes: ' + e.message, 'error');
+    }
+  }
+
+  function populateRoutes() {
+    const sel = document.getElementById('routeSelect');
+    sel.innerHTML = '<option value="">— select a route —</option>';
+    routesData.forEach((route, i) => {
+      const opt = document.createElement('option');
+      opt.value = i;
+      opt.textContent = route.name + (route.longName && route.longName !== route.name ? ' — ' + route.longName : '');
+      sel.appendChild(opt);
+    });
+    sel.disabled = false;
+  }
+
+  function onRouteChange() {
+    const idx = document.getElementById('routeSelect').value;
+    const dSel = document.getElementById('directionSelect');
+    const sSel = document.getElementById('stopSelect');
+    dSel.innerHTML = '<option value="">— select a direction —</option>';
+    sSel.innerHTML = '<option value="">— select direction first —</option>';
+    sSel.disabled = true;
+    if (idx === '') { dSel.disabled = true; return; }
+
+    const route = routesData[idx];
+    route.directions.forEach(dir => {
+      const opt = document.createElement('option');
+      opt.value = dir.id;
+      opt.textContent = `${dir.id} — ${dir.title}`;
+      dSel.appendChild(opt);
+    });
+    dSel.disabled = false;
+  }
+
+  function onDirectionChange() {
+    const routeIdx = document.getElementById('routeSelect').value;
+    const dirId = document.getElementById('directionSelect').value;
+    const sSel = document.getElementById('stopSelect');
+    sSel.innerHTML = '<option value="">— select a stop —</option>';
+    if (dirId === '') { sSel.disabled = true; return; }
+
+    const route = routesData[routeIdx];
+    const dir = route.directions.find(d => d.id === dirId);
+    dir.stops.forEach(stop => {
+      const opt = document.createElement('option');
+      opt.value = stop.id;
+      opt.textContent = `${stop.id} — ${stop.name}`;
+      opt.dataset.lat = stop.lat;
+      opt.dataset.lon = stop.lon;
+      sSel.appendChild(opt);
+    });
+    sSel.disabled = false;
+    sSel.onchange = async function() {
+      const selected = sSel.options[sSel.selectedIndex];
+      if (!selected || !selected.dataset.lat || !homeCoords) return;
+      const mins = await getWalkMinutes(parseFloat(selected.dataset.lat), parseFloat(selected.dataset.lon));
+      if (mins !== null) document.getElementById('minsInput').value = mins;
+    };
+  }
+
+  function setCardinal(c) {
+    cardinal = c;
+    document.querySelectorAll('.direction-group button').forEach(b => {
+      b.classList.toggle('active', b.textContent === c);
+    });
+  }
+
+  function addEntry() {
+    const routeIdx = document.getElementById('routeSelect').value;
+    const dirId = document.getElementById('directionSelect').value;
+    const stopId = document.getElementById('stopSelect').value;
+    const mins = document.getElementById('minsInput').value;
+
+    if (!routeIdx || !dirId || !stopId || !cardinal || mins === '') {
+      setStatus('Please fill in all fields before adding.', 'error');
+      return;
+    }
+
+    const route = routesData[routeIdx];
+    const routeId = route.id.split('-')[0];
+
+    const isDuplicate = entries.some(e =>
+      e.stop_id === stopId &&
+      e.route_id === routeId &&
+      e.direction_id === dirId
+    );
+    if (isDuplicate) {
+      setStatus(`Route ${routeId} in direction ${dirId} at stop ${stopId} is already added.`, 'error');
+      return;
+    }
+
+    const dir = route.directions.find(d => d.id === dirId);
+    const stop = dir.stops.find(s => s.id === stopId);
+
+    entries.push({
+      stop_id: stopId,
+      stop_name: stop.name,
+      route_id: routeId,
+      direction_id: dirId,
+      direction: cardinal,
+      minutes_from_home: parseInt(mins),
+      is_rail: agency === 'rail',
+    });
+
+    setStatus('');
+    renderEntries();
+    renderOutput();
+  }
+
+  function removeEntry(i) {
+    entries.splice(i, 1);
+    renderEntries();
+    renderOutput();
+  }
+
+  function clearAll() {
+    entries = [];
+    renderEntries();
+    renderOutput();
+    renderWarnings();
+  }
+
+  function renderEntries() {
+    const el = document.getElementById('entriesList');
+    if (entries.length === 0) {
+      el.className = 'empty-state';
+      el.innerHTML = 'No stops added yet.';
+      return;
+    }
+    el.className = 'entries';
+    el.innerHTML = entries.map((e, i) => `
+      <div class="entry">
+        <span class="route-badge ${e.is_rail ? 'rail' : ''}">${e.route_id}</span>
+        <span class="dir-badge">${e.direction}</span>
+        <span class="stop-name">${e.stop_id} — ${e.stop_name}</span>
+        <span class="mins">${e.minutes_from_home} min</span>
+        <button class="remove" onclick="removeEntry(${i})">×</button>
+      </div>
+    `).join('');
+  }
+
+  function renderWarnings() {
+    const counts = {};
+    entries.forEach(e => {
+      counts[e.direction] = (counts[e.direction] || 0) + 1;
+    });
+    const warnings = Object.entries(counts)
+      .filter(([, n]) => n > 3)
+      .map(([d]) => `More than three lines traveling ${d}. Not all lines will be displayed.`);
+    const el = document.getElementById('directionWarnings');
+    if (warnings.length === 0) {
+      el.innerHTML = '';
+    } else {
+      el.innerHTML = warnings.map(w => `<div class="warning" style="display:block">${w}</div>`).join('');
+    }
+  }
+
+  function renderOutput() {
+    const el = document.getElementById('output');
+    if (entries.length === 0) {
+      el.textContent = '# Add stops above to generate config output.';
+      return;
+    }
+
+    // group by stop_id
+    const grouped = {};
+    entries.forEach(e => {
+      if (!grouped[e.stop_id]) grouped[e.stop_id] = [];
+      grouped[e.stop_id].push(e);
+    });
+
+    const busEntries = Object.entries(grouped).filter(([, v]) => !v[0].is_rail);
+    const railEntries = Object.entries(grouped).filter(([, v]) => v[0].is_rail);
+
+    let out = '';
+
+    if (busEntries.length > 0) {
+      out += 'my_stops_lametro = {\n';
+      busEntries.forEach(([stopId, stops]) => {
+        out += `\t'${stopId}': [\n`;
+        stops.forEach(e => {
+          out += `\t\t{'route_id': '${e.route_id}', 'direction_id': '${e.direction_id}', 'direction': '${e.direction}', 'minutes_from_home': ${e.minutes_from_home}},\n`;
+        });
+        out += '\t],\n';
+      });
+      out += '}\n';
+    }
+
+    if (railEntries.length > 0) {
+      if (out) out += '\n';
+      out += 'my_stops_lametrorail = {\n';
+      railEntries.forEach(([stopId, stops]) => {
+        out += `\t'${stopId}': [\n`;
+        stops.forEach(e => {
+          out += `\t\t{'route_id': '${e.route_id}', 'direction_id': '${e.direction_id}', 'direction': '${e.direction}', 'minutes_from_home': ${e.minutes_from_home}},\n`;
+        });
+        out += '\t],\n';
+      });
+      out += '}\n';
+    }
+
+    el.textContent = out;
+    renderWarnings();
+  }
+
+  function copyOutput() {
+    const text = document.getElementById('output').textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      setStatus('Copied to clipboard.', 'ok');
+      setTimeout(() => setStatus(''), 2000);
+    });
+  }
+</script>
+</body>
+</html>
