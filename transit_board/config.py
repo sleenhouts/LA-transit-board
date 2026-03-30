@@ -8,10 +8,12 @@ color_by_line = False	# True: Line ID backgrounds shown in their brand colors:
 						#       A train blue, D train purple, Rapid buses red, etc.
 						# False: Line ID backgrounds colored by agency:
 						#       Metro bus - orange, Metro rail - grey, LADOT - blue
-color_arrivals = True	# True: arrival times color coded relative to walk time from home
-						#		(stoplight style: red - will miss, yellow - leave now, green - good)
-						# False: all arrival times shown in blue
-						# 		(minutes_from_home still required; set to 0 to show all arrivals)
+color_arrivals = True	# True: Arrival times color coded relative to walk time from home
+						#		stoplight-style: red - will miss, yellow - leave now, green - good.
+						#		(Only the last red arrival is shown. Ex.: At a stop 12m from home, 
+						#				arrivals at 1, 3, 7, & 15 minutes shows 7, 15)
+						# False: All arrival times shown in blue
+						# 		Minutes_from_home still required; set to 0 to show all arrivals
 day_brightness = 100	# Brightness during the day (1-100)
 night_brightness = 65	# Brightness at night (1-100)
 						# Set both to the same value to disable auto-dimming
