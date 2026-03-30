@@ -1,6 +1,6 @@
 # LA-transit-board
 
-Shows real-time Los Angeles public transit arrivals on an LED matrix. Can include arrival times from L.A. Metro and LADOT, optionally color-coded by how long it will take you to get to the stop from the board's location. Cycles through up to four pages for each of the cardinal directions, with two or three lines per page.
+Shows real-time Los Angeles public transit arrivals on an LED matrix. Can include arrival times from L.A. Metro and LADOT, optionally color-coded by how long it will take you to get to the stop from the board's location. Cycles through up to four pages--one for each of the cardinal directions--with two or three lines per page.
 
 ![Board with three lines](https://github.com/sleenhouts/LA-transit-board/blob/main/three_lines.jpg) ![Board with two lines](https://github.com/sleenhouts/LA-transit-board/blob/main/two_lines.jpg)
 
