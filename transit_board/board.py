@@ -201,6 +201,7 @@ class BusBoard(SampleBase):
 				text2L=''
 				text3R=''
 				text3L=''
+				drew_anything = False
 				for keys, values in sorted(arrivals.items()):
 					if directions==keys[-1:] and linecount==0:
 						text1L=keys
@@ -215,22 +216,20 @@ class BusBoard(SampleBase):
 						text3R=','.join(str(t) for t in filterArrivals(resolveMinutes(values, keys), keys)[:num_arrivals])
 						linecount=3
 
-				if text1R != '':
-					drawLineIDBackground(text1L,backgroundcolor(text1L),1)
-					graphics.DrawText(canvas, linefont, hmargin, linefont.height, black, text1L)
-					drawArrivalsByApproach(text1R,text1L,1)
-					if text2R != '':
-						drawLineIDBackground(text2L,backgroundcolor(text2L),2)
-						graphics.DrawText(canvas, linefont, hmargin, 2 * linefont.height + vmargin, black, text2L)
-						drawArrivalsByApproach(text2R,text2L,2)
-					if text3R != '':
-						drawLineIDBackground(text3L,backgroundcolor(text3L),3)
-						graphics.DrawText(canvas, linefont, hmargin, 3 * linefont.height + 2 * vmargin, black, text3L)
-						drawArrivalsByApproach(text3R,text3L,3)
+				lines = [(text1L, text1R), (text2L, text2R), (text3L, text3R)]
+				textline = 1
+				for lineL, lineR in lines:
+					if lineR != '':
+						drawLineIDBackground(lineL, backgroundcolor(lineL), textline)
+						graphics.DrawText(canvas, linefont, hmargin, textline * linefont.height + (textline-1) * vmargin, black, lineL)
+						drawArrivalsByApproach(lineR, lineL, textline)
+						textline += 1
+						drew_anything = True
 
+				if drew_anything:
 					time.sleep(6) # show display for 6 seconds before next page
 					canvas.Clear()
-					time.sleep(0.8)
+					time.sleep(0.5)
 
 			# wait for fetch to finish if it hasn't already
 			fetch_thread.join()
