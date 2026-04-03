@@ -215,7 +215,7 @@ class BusBoard(SampleBase):
 						text3R=','.join(str(t) for t in filterArrivals(resolveMinutes(values, keys), keys)[:num_arrivals])
 						linecount=3
 
-				if text1L != '':
+				if text1R != '':
 					drawLineIDBackground(text1L,backgroundcolor(text1L),1)
 					graphics.DrawText(canvas, linefont, hmargin, linefont.height, black, text1L)
 					drawArrivalsByApproach(text1R,text1L,1)
