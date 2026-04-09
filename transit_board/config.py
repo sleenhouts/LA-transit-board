@@ -54,7 +54,7 @@ my_stops_lametro = {
 #	],
 #	'30000': [
 #		{'route_id': '33', 'direction_id': '1', 'direction': 'W', 'minutes_from_home': 10},
-#		{'route_id': '33', 'direction_id': '0', 'direction': 'W', 'minutes_from_home': 10},
+#		{'route_id': '33', 'direction_id': '0', 'direction': 'E', 'minutes_from_home': 10},
 #		{'route_id': '40', 'direction_id': '1', 'direction': 'S', 'minutes_from_home': 10},
 #	],
 }
