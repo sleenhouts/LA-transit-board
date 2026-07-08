@@ -97,8 +97,8 @@ my_stops_lametrorail = {
 # direction: Cardinal direction the bus travels from this stop (N/S/E/W) for display
 # minutes_from_home: Walking time from home to this stop
 # route_id: The line abbreviation displayed — must be three characters or fewer for space
-# start_url: The LADOT mobile arrivals URL for this stop and route.
-#            Find it by navigating to your stop on ladotbus.com/m
+# start_url: The LADOT arrivals URL for this stop and route.
+#            Find it by navigating to your stop on ladotbus.com
 # ============================================================
 
 my_stops_ladot = {
@@ -107,6 +107,6 @@ my_stops_ladot = {
 #		'direction': 'S',
 #		'minutes_from_home': 10,
 #		'route_id': 'MTD',
-#		'start_url': 'https://www.ladotbus.com/m/regions/7/routes/576/direction/26733/stops/305870/pattern'
+#		'start_url': 'https://www.ladotbus.com/route/576/direction/loop/stop/305870/arrivals'
 #	},
 }
